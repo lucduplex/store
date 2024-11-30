@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Commande confirmée{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Titre principal -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 text-success fw-bold">🎉 Commande confirmée !</h1>
+        <p class="lead">Merci pour votre achat, <span class="text-primary">{{ order.user.username }}</span> !</p>
+    </div>
+
+    <!-- Carte des détails de la commande -->
+    <div class="card shadow-lg border-0 mb-5">
+        <div class="card-header bg-primary text-white text-center fw-bold fs-4">
+            Détails de votre commande
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <p><strong>N* Commande :</strong> {{ order.id }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Adresse livraison :</strong> {{ order.delivery_address }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Date :</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Total :</strong> <span class="text-success fs-5">{{ order.total_price }} $</span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Statut :</strong> 
+                        <span class="badge bg-info text-dark">{{ order.get_status_display }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des articles commandés -->
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-secondary text-white text-center fw-bold fs-4">
+            Articles commandés
+        </div>
+        <ul class="list-group list-group-flush">
+            {% for item in order.items.all %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1"><i class="bi bi-box"></i> {{ item.product.name }}</h6>
+                    <small>Quantité : {{ item.quantity }}</small>
+                </div>
+                <span class="fw-bold text-primary">{{ item.price }} $</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Bouton retour à l'accueil -->
+    <div class="text-center mt-5">
+        <a href="{% url 'index' %}" class="btn btn-outline-primary btn-lg shadow-sm">
+            Retour à l'accueil <i class="bi bi-house-door"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}

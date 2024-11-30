@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-8 col-sm-10">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-5">
+                    <h3 class="card-title text-center mb-4 text-dark">Créer un nouveau compte</h3>
+                    <p class="text-center text-muted mb-4">Remplissez les informations ci-dessous pour créer votre compte.</p>
+                    
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <!-- Champ nom d'utilisateur -->
+                        <div class="form-floating mb-3">
+                            <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" id="username" placeholder="Nom d'utilisateur" value="{{ form.username.value }}" required>
+                            <label for="username">Nom d'utilisateur</label>
+                            {% if form.username.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Champ email -->
+                        <div class="form-floating mb-3">
+                            <input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" id="email" placeholder="Adresse e-mail" value="{{ form.email.value }}" required>
+                            <label for="email">Adresse e-mail</label>
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Champ numéro de téléphone -->
+                        <div class="form-floating mb-3">
+                            <input type="text" name="num_tel" class="form-control {% if form.num_tel.errors %}is-invalid{% endif %}" id="num_tel" placeholder="Numéro de téléphone" value="{{ form.num_tel.value }}" required>
+                            <label for="num_tel">Numéro de téléphone</label>
+                            {% if form.num_tel.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.num_tel.errors %} 
+                                    {{ error }} 
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Champ adresse -->
+                        <div class="form-floating mb-3">
+                            <input type="text" name="adresse" class="form-control {% if form.adresse.errors %}is-invalid{% endif %}" id="adresse" placeholder="Adresse" value="{{ form.adresse.value }}" required>
+                            <label for="adresse">Adresse</label>
+                            {% if form.adresse.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.adresse.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Champ mot de passe -->
+                        <div class="form-floating mb-3">
+                            <input type="password" name="password1" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" id="password1" placeholder="Mot de passe" required>
+                            <label for="password1">Mot de passe</label>
+                            {% if form.password1.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.password1.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Confirmation mot de passe -->
+                        <div class="form-floating mb-3">
+                            <input type="password" name="password2" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" id="password2" placeholder="Confirmer le mot de passe" required>
+                            <label for="password2">Confirmer le mot de passe</label>
+                            {% if form.password2.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.password2.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Section FaceID -->
+                        <div class="form-group mb-3">
+                            <label for="method-select" class="form-label">Choisir la méthode pour FaceID</label>
+                            <select id="method-select" class="form-select" onchange="toggleMethod()">
+                                <option value="upload" {% if not form.face_id.errors %}selected{% endif %}>Télécharger une image</option>
+                                <option value="capture" {% if form.face_id.errors %}selected{% endif %}>Capturer via Webcam</option>
+                            </select>
+                        </div>
+
+                        <!-- Téléchargement d'image -->
+                        <div id="upload-section" class="form-group mb-3">
+                            <label for="face_id" class="form-label">Télécharger votre FaceID</label>
+                            <input type="file" id="face_id" name="face_id" class="form-control {% if form.face_id.errors %}is-invalid{% endif %}">
+                            {% if form.face_id.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.face_id.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Capture d'image via webcam -->
+                        <div id="capture-section" class="form-group mb-3" style="display:none;">
+                            <label for="video" class="form-label">Capturer FaceID via Webcam</label>
+                            <div class="d-flex justify-content-center mb-3">
+                                <video id="video" class="border rounded" width="100%" height="240" autoplay></video>
+                            </div>
+                            <canvas id="canvas" style="display:none;"></canvas>
+                            <input type="file" id="face_id_capture" name="face_id_capture" style="display:none;" accept="image/*">
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-warning mb-3" onclick="captureImage()">
+                                    <i class="bi bi-camera"></i> Capturer une image
+                                </button>
+                            </div>
+                            <div id="capture-success" class="alert alert-success mt-2" style="display: none;">Image capturée avec succès !</div>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-dark">S'inscrire</button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">Déjà un compte ?</p>
+                        <a href="{% url 'login' %}" class="btn btn-outline-dark">Se connecter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let videoStream = null; // Variable globale pour stocker le flux vidéo
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Récupérer tous les champs du formulaire avec la classe form-control
+        const formFields = document.querySelectorAll(".form-control");
+    
+        // Fonction pour valider un champ
+        function validateField(field) {
+            const value = field.value.trim();
+            const errorMessage = field.nextElementSibling; 
+    
+            // Validation spécifique selon le type ou le nom
+            if (field.name === "email") {
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(value)) {
+                    setInvalid(field, errorMessage, "Adresse e-mail invalide (ex: lucduplex@outlook.com).");
+                } else {
+                    setValid(field, errorMessage);
+                }
+            } else if (field.name === "num_tel") {
+                const phoneRegex = /^\(\d{3}\)-\d{3}-\d{4}$/; 
+                if (!phoneRegex.test(value)) {
+                    setInvalid(field, errorMessage, "Numéro invalide (ex: (514)-946-7048).");
+                } else {
+                    setValid(field, errorMessage);
+                }
+            } else if (field.name === "adresse") {
+                if (value.length < 5) {
+                    setInvalid(field, errorMessage, "Adresse invalide. (ex: 3030 rue Hochelaga).");
+                } else {
+                    setValid(field, errorMessage);
+                }
+            } else {
+                if (!value) {
+                    setInvalid(field, errorMessage, "Ce champ est obligatoire.");
+                } else {
+                    setValid(field, errorMessage);
+                }
+            }
+        }
+    
+        // Fonction pour définir un champ comme invalide
+        function setInvalid(field, errorMessageElement, message) {
+            field.classList.add("is-invalid");
+            field.classList.remove("is-valid");
+            if (errorMessageElement) {
+                errorMessageElement.textContent = message;
+                errorMessageElement.classList.add("invalid-feedback");
+            }
+        }
+    
+        // Fonction pour définir un champ comme valide
+        function setValid(field, errorMessageElement) {
+            field.classList.remove("is-invalid");
+            field.classList.add("is-valid");
+            if (errorMessageElement) {
+                errorMessageElement.textContent = "";
+                errorMessageElement.classList.remove("invalid-feedback");
+            }
+        }
+    
+        // Ajout d'un écouteur d'événements sur chaque champ pour validation en temps réel
+        formFields.forEach(field => {
+            field.addEventListener("input", function () {
+                validateField(field);
+            });
+    
+            // Validation au moment du submit
+            field.form.addEventListener("submit", function (event) {
+                validateField(field);
+                if (field.classList.contains("is-invalid")) {
+                    event.preventDefault(); // Empêche l'envoi si le champ est invalide
+                }
+            });
+        });
+    });
+    
+
+    function toggleMethod() {
+        const methodSelect = document.getElementById('method-select');
+        const uploadSection = document.getElementById('upload-section');
+        const captureSection = document.getElementById('capture-section');
+
+        if (methodSelect.value === 'upload') {
+            uploadSection.style.display = 'block';
+            captureSection.style.display = 'none';
+            stopWebcam(); // Arrête la webcam si elle est active
+        } else {
+            uploadSection.style.display = 'none';
+            captureSection.style.display = 'block';
+            startWebcam(); // Démarre la webcam
+        }
+    }
+
+    function startWebcam() {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                videoStream = stream; // Stocke le flux dans la variable globale
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+            })
+            .catch((error) => {
+                console.error("Erreur lors de l'accès à la webcam : ", error);
+            });
+    }
+
+    function stopWebcam() {
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            videoStream = null;
+        }
+    }
+
+    function captureImage() {
+        const canvas = document.getElementById('canvas');
+        const video = document.getElementById('video');
+        const faceImageInput = document.getElementById('face_id');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob((blob) => {
+            const file = new File([blob], "face_image.jpg", { type: "image/jpeg" });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            faceImageInput.files = dataTransfer.files;
+            
+            document.getElementById('capture-success').style.display = 'block';
+            stopWebcam(); // Arrête la webcam après la capture
+        });
+    }
+
+    // Arrête la webcam lorsqu'on quitte la page ou change de méthode
+    window.addEventListener('beforeunload', stopWebcam);
+</script>
+
+{% endblock %}

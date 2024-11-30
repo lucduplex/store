@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static%}
+
+{% block title %}Confirmer la suppression du compte{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-5 text-center">
+            <h2 class="text-danger mb-4">Êtes-vous sûr de vouloir supprimer votre compte ?</h2>
+            <p class="text-muted">Cette action est irréversible.</p>
+
+            <!-- User Profile Display -->
+            <div class="d-flex flex-column align-items-center mb-4">
+                <div class="position-relative">
+                    {% if user.userprofile.face_id %}
+                        <img src="{{ user.userprofile.face_id.url }}" class="rounded-circle img-thumbnail" alt="Photo de profil" width="150" height="150">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.png' %}" class="rounded-circle img-thumbnail" alt="Photo de profil" width="150" height="150">
+                    {% endif %}
+                </div>
+                <h4 class="mt-3">{{ user.username }}</h4>
+            </div>
+
+            <!-- Confirmation Form -->
+            <div class="d-flex justify-content-center">
+                <form method="post" action="{% url 'deleteUser' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-lg me-2">Supprimer mon compte</button>
+                    <a href="{% url 'profile' %}" class="btn btn-secondary btn-lg">Annuler</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Commande{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Récapitulatif de la commande</h1>
+
+    <!-- Détails des articles du panier -->
+    <div class="row">
+        {% for item in cart_items %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="{{ item.product.image.url }}" class="img-fluid rounded-start" alt="{{ item.product.name }}" style="object-fit: cover; height: 100%;">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.product.name }}</h5>
+                            <p class="card-text">
+                                <strong>Quantité :</strong> {{ item.quantity }}<br>
+                                <strong>Prix unitaire :</strong> {{ item.product.price }} $<br>
+                                <strong>Prix total :</strong> {{ item.total_item_price|floatformat:2 }} $
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Récapitulatif général -->
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="card shadow-sm p-4">
+                <h4 class="text-center">Détails de la commande</h4>
+                <hr>
+                <p>
+                    <strong>Sous-total :</strong> {{ total_price|floatformat:2 }} $<br>
+                    <strong>Taxes :</strong> {{ taxes|floatformat:2 }} $<br>
+                    <strong>Frais de livraison :</strong> {{ shipping_fee|floatformat:2 }} $<br>
+                    <strong>Total à payer :</strong> <span class="text-success">{{ grand_total|floatformat:2 }} $</span>
+                </p>
+
+                <!-- Formulaire pour modifier l'adresse de livraison -->
+                <h5 class="text-center mt-4 fw-bold">Adresse de livraison</h5>
+                <form method="POST" action="{% url 'update_delivery_address' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="delivery_address" class="form-label fw-bold">Adresse complète</label>
+                        <input type="text" name="delivery_address" id="delivery_address" class="form-control fw-bold" value="{{ user_profile.address }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Mettre à jour l'adresse</button>
+                </form>
+
+                <!-- Bouton pour passer à la caisse avec Stripe -->
+                <div class="text-center mt-4">
+                    <button id="checkout-button" class="btn btn-warning align-items-center justify-content-center">
+                        <i class="fas fa-credit-card me-2"></i> Payer avec Stripe
+                    </button>
+                </div>
+
+                <!-- Script Stripe -->
+                <script src="https://js.stripe.com/v3/"></script>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const stripe = Stripe("{{ key }}");
+
+                        document.getElementById("checkout-button").addEventListener("click", function () {
+                            stripe.redirectToCheckout({
+                                sessionId: "{{ stripe_session_id }}"
+                            }).then(function (result) {
+                                if (result.error) {
+                                    alert(result.error.message);
+                                }
+                            });
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

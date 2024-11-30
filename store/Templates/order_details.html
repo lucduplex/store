@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Détails de la commande{% endblock %}
+
+{% block content %}
+<div class="container order-details mt-5">
+    <!-- En-tête de la commande -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body bg-light">
+            <h2 class="card-title text-center text-primary">Détails de la commande #{{ order.id }}</h2>
+            <p class="card-text text-center">Date de commande : <strong>{{ order.created_at|date:"d/m/Y" }}</strong></p>
+        </div>
+    </div>
+
+    <!-- Tableau des articles de la commande -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table order-table table-striped text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Image</th>
+                        <th>Produit</th>
+                        <th>Quantité</th>
+                        <th>Prix Unitaire</th>
+                        <th>Sous-total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr>
+                        <td>
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="80" height="80" class="rounded" style="object-fit: cover;">
+                        </td>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.product.price }} $</td>
+                        <td>{{ total_price|floatformat:2 }} $</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Résumé de la commande -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h4 class="text-primary">Résumé de la commande</h4>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Sous-total : <strong>{{ total_price|floatformat:2 }} $</strong></li>
+                <li class="list-group-item">Taxes (15%) : <strong>{{ taxes|floatformat:2 }} $</strong></li>
+                <li class="list-group-item">Frais de livraison : <strong>{{ shipping_fee }} $</strong></li>
+                <li class="list-group-item bg-light">
+                    <h4>Total : <strong>{{ grand_total|floatformat:2 }} $</strong></h4>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Boutons -->
+    <div class="d-flex justify-content-center mt-4">
+        <a href="{% url 'edit_order' order.id %}" class="btn btn-warning me-2">
+            <i class="fas fa-edit"></i> Modifier la commande
+        </a>
+        <a href="{% url 'user_orders' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour à mes commandes
+        </a>
+    </div>
+</div>
+{% endblock %}

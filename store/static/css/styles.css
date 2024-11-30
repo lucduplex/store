@@ -1,0 +1,159 @@
+/* Section iPad */
+.products-section {
+    background-image: url("../images/ipad.jpg"); /* Image de fond pour la section iPad */
+    background-size: cover;
+    background-position: center;
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    border-radius: 15px; /* Ajout de bordures arrondies */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    transition: transform 0.3s, box-shadow 0.3s; /* Effets de transition */
+}
+
+/* Section Mac */
+.products-section1 {
+    background-image: url("../images/mac.webp"); /* Image de fond pour la section Mac */
+    background-size: cover;
+    background-position: center;
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px; /* Ajout de bordures arrondies */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    transition: transform 0.3s, box-shadow 0.3s; /* Effets de transition */
+}
+
+/* Section iPhone */
+.main-section {
+    background-image: url("../images/iphones.jpg"); /* Image de fond pour la section iPhone */
+    background-size: cover;
+    background-position: center;
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px; /* Ajout de bordures arrondies */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Ombre plus prononcée */
+    transition: background-position 0.3s, box-shadow 0.3s; /* Effet de transition sur le fond et l'ombre */
+}
+
+/* Effet de survol sur les cartes produits */
+.product-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Ombre plus accentuée */
+}
+
+/* Zoom sur l'image au survol */
+.product-card img:hover {
+    transform: scale(1.1);
+}
+
+/* Apparition de l'overlay au survol */
+.product-card .overlay:hover {
+    opacity: 1;
+}
+
+/* Animation de descente pour l'apparition */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Effets de survol pour les sections */
+.products-section:hover, .products-section1:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.main-section:hover {
+    background-position: top center; /* Déplacement de l'image au survol */
+}
+
+/* Animation de montée pour l'apparition */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.order-details {
+    margin: 50px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+.order-header {
+    background-color: #007bff;
+    color: #fff;
+    padding: 20px;
+    border-radius: 8px 8px 0 0;
+}
+.order-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+.order-table th, .order-table td {
+    vertical-align: middle;
+}
+.order-summary {
+    margin-top: 20px;
+    text-align: right;
+}
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+.table {
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+.btn-group .btn {
+    margin-right: 0.5rem;
+}
+
+
+.chat-box {
+    border: 1px solid #444;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #1e1e1e;
+}
+
+textarea {
+    resize: none;
+    font-size: 1rem;
+    padding: 10px;
+    color: #fff;
+}
+
+button {
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.list-group-item {
+    border: none;
+    padding: 10px 15px;
+}
+
+
+

@@ -1,0 +1,94 @@
+<nav class="navbar mt-2 navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+        <!-- Brand -->
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple Logo" width="25" height="25">
+        </a>        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <!-- Left side of the navbar (Main navigation links) -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'index' %}">Accueil</a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="storeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Store
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="storeDropdown">
+                        <li><a class="dropdown-item" href="{% url 'listProducts' %}">Tous les produits</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        {% for category in categories %}
+                        <li><a class="dropdown-item" href="{% url 'products_by_category' category.id %}">{{ category.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'about' %}">À propos</a>
+                </li>
+            </ul>
+
+            <!-- Right side of the navbar (User, Cart, Search) -->
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <!-- Cart Icon with Count -->
+                <li class="nav-item">
+                    <a class="btn btn-outline-light position-relative d-flex align-items-center" href="{% url 'cart' %}">
+                        <i class="bi bi-cart4 me-2" style="font-size: 1.5rem;"></i>
+                        <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-2 border border-light">
+                            {{ request.session.cart_count|default:0 }}
+                            <span class="visually-hidden">articles dans le panier</span>
+                        </span>
+                        <span class="fw-bold">Panier</span>
+                    </a>
+                </li>
+
+                <!-- User Auth links -->
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <!-- Afficher l'image de profil si disponible -->
+                        {% if user.userprofile.face_id %}
+                        <img src="{{ user.userprofile.face_id.url }}" class="rounded-circle me-2" alt="Profile Picture" width="40" height="40">
+                        {% endif %}
+                        Bienvenue, {{ user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'user_orders' %}">Mes Commandes</a></li>
+                        <li><a class="dropdown-item" href="{% url 'chatbot' %}">Besoin d'aide</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Déconnexion</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Connexion</a>
+                </li>
+                {% endif %}
+
+                <!-- Admin Links (only visible to staff) -->
+                {% if user.is_staff %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle mt-2" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Admin
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                        <li><a class="dropdown-item" href="{% url 'admin:index' %}">Panneau d'administration</a></li>
+                        <li><a class="dropdown-item" href="{% url 'sales_statistics' %}">Statistiques de vente</a></li>
+                    </ul>
+                </li>
+                {% endif %}
+            </ul>
+
+            <!-- Search Form -->
+            <form class="d-flex ms-3" role="search" method="GET" action="{% url 'search_results' %}">
+                <input class="form-control me-2" name="query" type="search" placeholder="Rechercher un produit..." aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Rechercher</button>
+            </form>
+        </div>
+    </div>
+</nav>

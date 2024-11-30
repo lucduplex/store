@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Modifier l'image de profil{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Modifier votre image de profil</h2>
+
+    <div class="card shadow-sm p-4 mt-4" style="max-width: 500px; margin: auto; border-radius: 15px;">
+        <div class="text-center mb-4">
+            <h4 class="mb-3">Aperçu de votre photo</h4>
+            <img id="profile-preview" src="{% if face_id %}{{ face_id.url }}{% else %}{% static 'default-avatar.png' %}{% endif %}" 
+                 alt="Profile Preview" 
+                 class="rounded-circle border" 
+                 style="width: 150px; height: 150px; object-fit: cover;">
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="form mt-3">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="face_id" class="form-label">Téléverser une nouvelle image</label>
+                <input type="file" name="face_id" id="face_id" class="form-control" accept="image/*">
+                <small class="form-text text-muted">Formats acceptés: JPEG, PNG. Taille max: 2MB.</small>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Mettre à jour</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Script pour afficher l'aperçu en direct de l'image téléchargée
+    document.getElementById('face_id').addEventListener('change', function(event) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profile-preview').src = e.target.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    });
+</script>
+{% endblock %}

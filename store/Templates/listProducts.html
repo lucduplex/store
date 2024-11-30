@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Nos Produits{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Section de présentation des produits -->
+    <section class="text-center py-5 mb-4 bg-light" style="border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);">
+        <h1 class="display-4 mb-4" style="animation: fadeInDown 1s;">Découvrez les produits Apple</h1>
+        <p class="lead text-muted" style="animation: fadeInDown 1.2s;">Explorez notre sélection exclusive de produits Apple.</p>
+    </section>
+
+    <!-- Grille des produits -->
+    <div class="row mb-4 gy-4">
+        {% for product in products %}
+        <div class="col-md-4 d-flex align-items-stretch">
+            <!-- Carte produit avec effets visuels -->
+            <div class="card product-card border-0 shadow-sm h-100 text-center" style="transition: transform 0.3s ease, box-shadow 0.3s ease;">
+                <div class="position-relative">
+                    <img src="{{ product.image.url }}" class="card-img-top img-fluid rounded-top" alt="{{ product.name }}" style="height: 300px; object-fit: cover;">
+                    <!-- Overlay au survol -->
+                    <div class="overlay d-flex justify-content-center align-items-center text-white" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); opacity: 0; transition: opacity 0.3s;">
+                        <h4 class="text-uppercase">Découvrir {{ product.name }}</h4>
+                    </div>
+                </div>
+
+                <!-- Contenu de la carte produit -->
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ product.name }}</h5>  
+                    <p class="card-text text-muted">{{ product.description|truncatewords:15 }}</p>
+                    <p class="card-text"><strong>{{ product.price }} $</strong></p>
+                    <div class="mt-auto">
+                        <!-- Boutons Détails et Ajouter au panier -->
+                        <a href="{% url 'page_detail' product.id %}" class="btn btn-outline-dark w-100 mb-2">Détails</a>
+                        <form method="POST" action="{% url 'add_to_cart' product.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-dark w-100">Ajouter au panier</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">Aucun produit disponible pour le moment.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

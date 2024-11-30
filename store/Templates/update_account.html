@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Modifier Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Sidebar pour les options utilisateur -->
+        <div class="col-md-4 mt-1">
+            <div class="card text-center shadow-lg" style="background-color: #2c2f33; padding: 20px; border-radius: 15px;">
+                <div class="card-body">
+                    {% if face_id %}
+                        <img src="{{ face_id.url }}" class="rounded-circle border border-primary" width="200" alt="Profile Picture">
+                    {% else %}
+                        <img src="{% static 'default-avatar.png' %}" class="rounded-circle border border-primary" width="200" alt="Default Avatar">
+                    {% endif %}
+                    <a href="{% url 'update_profile_picture' %}" class="position-absolute d-flex align-items-center justify-content-center bg-primary rounded-circle" style="top: 10px; right: 10px; width: 40px; height: 40px;">
+                        <i class="bi bi-camera-fill text-white" style="font-size: 1.2rem;"></i>
+                    </a>
+                    <h3 class="mt-3 text-white">{{ request.user.username }}</h3>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-2">
+                            <a class="btn btn-outline-light btn-block" href="{% url 'profile' %}">
+                                <i class="bi bi-person-circle me-2"></i> À propos
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a class="btn btn-outline-light btn-block" href="{% url 'updateAccount' %}">
+                                <i class="bi bi-pencil-square me-2"></i> Modifier compte
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a class="btn btn-outline-light btn-block" href="{% url 'password_change' %}">
+                                <i class="bi bi-lock-fill me-2"></i> Modifier mot de passe
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a class="btn btn-outline-danger btn-block" href="{% url 'confirm_deleteUser' %}">
+                                <i class="bi bi-trash-fill me-2"></i> Supprimer le compte
+                            </a>
+                        </li>
+                        <li>
+                            <a class="btn btn-danger btn-block" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right me-2"></i> Déconnexion
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section pour modifier les informations utilisateur -->
+        <div class="col-md-8 mt-1">
+            <div class="card mb-3 shadow-lg" style="background-color: #23272a; border-radius: 15px;">
+                <div class="card-header text-center bg-dark text-white">
+                    <h4>Modifier votre compte</h4>
+                </div>
+                <div class="card-body text-light">
+                    <form id="updateForm" method="POST" action="{% url 'updateAccount' %}" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Nom d'utilisateur -->
+                        <div class="form-group row">
+                            <label for="username" class="col-md-3 col-form-label"><strong>Nom d'utilisateur:</strong></label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control form-control-lg bg-dark text-white" id="username" name="username" 
+                                       value="{{ request.user.username }}" required minlength="3" maxlength="30">
+                                <div class="invalid-feedback">Le nom d'utilisateur doit contenir entre 3 et 30 caractères.</div>
+                            </div>
+                        </div>
+                        <hr class="border-secondary">
+
+                        <!-- Courriel -->
+                        <div class="form-group row">
+                            <label for="email" class="col-md-3 col-form-label"><strong>Courriel:</strong></label>
+                            <div class="col-md-9">
+                                <input type="email" class="form-control form-control-lg bg-dark text-white" id="email" name="email" 
+                                       value="{{ request.user.email }}" required>
+                                <div class="invalid-feedback">Veuillez entrer une adresse email valide.</div>
+                            </div>
+                        </div>
+                        <hr class="border-secondary">
+
+                        <!-- Numéro de téléphone -->
+                        <div class="form-group row">
+                            <label for="num_tel" class="col-md-3 col-form-label"><strong>Numéro de téléphone:</strong></label>
+                            <div class="col-md-9">
+                                <input type="tel" class="form-control form-control-lg bg-dark text-white" id="num_tel" name="num_tel" 
+                                       value="{{ num_tel }}" pattern="\(\d{3}\)-\d{3}-\d{4}" 
+                                       title="Le numéro doit être au format (541)-475-1258" required>
+                                <div class="invalid-feedback">Veuillez entrer un numéro de téléphone au format (541)-475-1258.</div>
+                            </div>
+                        </div>
+                        <hr class="border-secondary">
+
+                        <!-- Adresse -->
+                        <div class="form-group row">
+                            <label for="address" class="col-md-3 col-form-label"><strong>Adresse:</strong></label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control form-control-lg bg-dark text-white" id="address" name="address" 
+                                       value="{{ address }}" required 
+                                       pattern="^\d+,\d+\s\w+(\s\w+)*,\s\w+(\s\w+)*$"
+                                       title="Format attendu : Numéro d'appartement, Rue, Ville (ex: 9,1724 rue François, Montréal)">
+                                <div class="invalid-feedback">Format attendu : Numéro d'appartement, Rue, Ville (ex: 9,1724 rue François, Montréal).</div>
+                            </div>
+                        </div>
+
+                        <!-- Bouton de soumission -->
+                        <div class="form-group text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg px-4">
+                                <i class="bi bi-save2-fill me-2"></i> Mettre à jour
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('updateForm').addEventListener('submit', function(event) {
+        if (!this.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        this.classList.add('was-validated');
+    });
+
+    document.getElementById('num_tel').addEventListener('input', function(event) {
+        let input = event.target.value.replace(/\D/g, '');  // Supprime tout sauf les chiffres
+        let formatted = '';
+        if (input.length > 0) formatted += '(' + input.substring(0, 3);
+        if (input.length >= 4) formatted += ')-' + input.substring(3, 6);
+        if (input.length >= 7) formatted += '-' + input.substring(6, 10);
+        event.target.value = formatted;
+    });
+</script>
+{% endblock %}

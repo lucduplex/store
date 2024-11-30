@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-5">
+                    <h3 class="card-title text-center mb-4 text-dark">Connexion à votre compte</h3>
+                    <p class="text-center text-muted mb-4">Veuillez entrer vos informations pour vous connecter</p>
+                    
+                    {% if messages %}
+                        <div class="container mt-3">
+                            {% for message in messages %}
+                                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        <div class="form-group mb-4">
+                            <label for="login-method" class="form-label">Choisir la méthode de connexion</label>
+                            <select id="login-method" name="login-method" class="form-select" onchange="toggleLoginMethod()">
+                                <option value="password">Mot de passe</option>
+                                <option value="faceid">FaceID</option>
+                            </select>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="text" name="username" class="form-control" id="username" placeholder="Nom d'utilisateur" required>
+                            <label for="username">Nom d'utilisateur</label>
+                        </div>
+
+                        <div id="password-section" class="form-floating mb-3">
+                            <input type="password" name="password" class="form-control" id="password" placeholder="Mot de passe">
+                            <label for="password">Mot de passe</label>
+                        </div>
+
+                        <div class="text-end mb-3" id="password-reset-link">
+                            <a href="{% url 'password_reset' %}" class="text-muted">Mot de passe oublié ?</a>
+                        </div>
+
+                        <div id="faceid-section" class="form-group mb-3" style="display:none;">
+                            <label for="face_id" class="form-label">Capture FaceID</label>
+                            <div class="d-flex justify-content-center mb-3">
+                                <video id="video" class="border rounded" width="100%" height="240" autoplay></video>
+                            </div>
+                            <canvas id="canvas" style="display:none;"></canvas>
+                            <input type="file" id="face_id" name="face_id" style="display:none;" accept="image/*">
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-warning mb-3" onclick="captureImage()">
+                                    <i class="bi bi-camera"></i> Capturer une image
+                                </button>
+                            </div>
+                            <div id="success-message" style="display: none;" class="alert alert-success mt-3 text-center p-2">
+                                <strong>Succès !</strong> Image capturée avec succès.
+                            </div>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-dark" id="submit-btn">Se connecter</button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">Pas encore de compte ?</p>
+                        <a href="{% url 'register' %}" class="btn btn-outline-dark">Créer un compte</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let stream; // Variable globale pour stocker le flux de la caméra
+
+    function toggleLoginMethod() {
+        const loginMethod = document.getElementById('login-method').value;
+        const passwordSection = document.getElementById('password-section');
+        const passwordResetLink = document.getElementById('password-reset-link');
+        const faceidSection = document.getElementById('faceid-section');
+        const video = document.getElementById('video');
+
+        if (loginMethod === 'password') {
+            passwordSection.style.display = 'block';
+            passwordResetLink.style.display = 'block';
+            faceidSection.style.display = 'none';
+
+            // Arrêter la caméra si elle est active
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        } else if (loginMethod === 'faceid') {
+            passwordSection.style.display = 'none';
+            passwordResetLink.style.display = 'none';
+            faceidSection.style.display = 'block';
+
+            // Démarrer la caméra
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((mediaStream) => {
+                    stream = mediaStream;
+                    video.srcObject = stream;
+                })
+                .catch((error) => {
+                    console.error("Erreur lors de l'accès à la webcam : ", error);
+                });
+        }
+    }
+
+    function captureImage() {
+        const canvas = document.getElementById('canvas');
+        const video = document.getElementById('video');
+        const faceImageInput = document.getElementById('face_id');
+        const successMessage = document.getElementById('success-message');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob((blob) => {
+            const file = new File([blob], "face_image.jpg", { type: "image/jpeg" });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            faceImageInput.files = dataTransfer.files;
+
+            successMessage.style.display = 'block';
+
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        });
+    }
+</script>
+{% endblock %}

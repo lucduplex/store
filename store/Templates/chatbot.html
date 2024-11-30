@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- Message d'accueil -->
+<div class="chatbot-welcome" style="margin: 20px auto; text-align: center; padding: 20px; max-width: 600px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); background-color: #f9f9f9;">
+    <h2 style="color: #333 ; font-weight: bold;">Bienvenue chez notre assistant virtuel</h2>
+    <p style="font-size: 16px; color: #333;">Cliquez sur la bulle 💬 en bas à droite pour commencer à discuter avec notre assistant virtuel et obtenir de l'aide rapidement.</p>
+</div>
+
+<!-- Chatbot -->
+<div id="chatbot-icon" class="chatbot-icon">💬</div>
+<div id="chatbot-container" class="chatbot-container hidden" style="position: fixed; bottom: 0; right: 0; width: 400px; height: 90vh; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); background-color: white;">
+    <div class="chatbot-header" style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold; background-color: #333; color: white;">
+        <span>Chatbot</span>
+        <button id="chatbot-close" class="close-btn" style="float: right; background: none; border: none; font-size: 16px; cursor: pointer;">✖</button>
+    </div>
+    <div id="chatbot-messages" class="chatbot-messages" style="height: 85%; overflow-y: auto; padding: 10px;">
+        <!-- Historique des messages -->
+        {% for message in chat_history %}
+            {% if message.role == 'Human' %}
+                <div class="chatbot-message user-message" style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 10px;">
+                    <div class="chatbot-text" style="background-color: #007bff; color: white; border-radius: 10px; padding: 10px; max-width: 75%; word-wrap: break-word;">
+                        Vous : {{ message.content }}
+                    </div>
+                    <img src="{{ avatar_user }}" alt="Votre avatar"
+                         style="width: 40px; height: 40px; border-radius: 50%; margin-left: 10px; object-fit: cover;">
+                </div>
+            {% else %}
+                <div class="chatbot-message bot-message" style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 10px;">
+                    <img src="{{ avatar_assistant }}" alt="Avatar chatbot"
+                         style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover;">
+                    <div class="chatbot-text" style="background-color: #f1f1f1; color: #333; border-radius: 10px; padding: 10px; max-width: 75%; word-wrap: break-word;">
+                        Assistant : {{ message.content }}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    <form id="chatbot-form" class="chatbot-form" style="height: 15%; display: flex; align-items: center; padding: 10px; border-top: 1px solid #ddd;">
+        {% csrf_token %}
+        <input id="chatbot-input" type="text" placeholder="Écrivez un message..." required style="flex-grow: 1; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;">
+        <button type="submit" class="send-btn" style="margin-left: 10px; padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Envoyer
+        </button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const chatbotIcon = document.getElementById('chatbot-icon');
+        const chatbotContainer = document.getElementById('chatbot-container');
+        const chatbotClose = document.getElementById('chatbot-close');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+        const chatbotForm = document.getElementById('chatbot-form');
+        const chatbotInput = document.getElementById('chatbot-input');
+        
+        // Les avatars utilisateur et assistant récupérés via le template Django
+        const avatarUser = "{{ avatar_user|escapejs }}";
+        const avatarAssistant = "{{ avatar_assistant|escapejs }}";
+
+        // Fonction pour ajouter un message utilisateur ou bot au conteneur
+        function addMessage(content, role) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chatbot-message');
+            messageDiv.classList.add(role === 'Human' ? 'user-message' : 'bot-message');
+
+            // Contenu du message
+            const messageContent = document.createElement('div');
+            messageContent.style.backgroundColor = role === 'Human' ? '#007bff' : '#f1f1f1';
+            messageContent.style.color = role === 'Human' ? 'white' : '#333';
+            messageContent.style.borderRadius = '10px';
+            messageContent.style.padding = '10px';
+            messageContent.style.maxWidth = '75%';
+            messageContent.style.wordWrap = 'break-word';
+            messageContent.textContent = (role === 'Human' ? 'Vous : ' : 'Chatbot : ') + content;
+
+            // Avatar
+            const avatar = document.createElement('img');
+            avatar.src = role === 'Human' ? avatarUser : avatarAssistant;
+            avatar.alt = role === 'Human' ? 'Votre avatar' : 'Avatar chatbot';
+            avatar.style.width = '40px';
+            avatar.style.height = '40px';
+            avatar.style.borderRadius = '50%';
+            avatar.style.objectFit = 'cover';
+
+            if (role === 'Human') {
+                messageDiv.style.display = 'flex';
+                messageDiv.style.alignItems = 'center';
+                messageDiv.style.justifyContent = 'flex-end';
+                messageDiv.style.marginBottom = '10px';
+
+                messageDiv.appendChild(messageContent);
+                messageDiv.appendChild(avatar);
+            } else {
+                messageDiv.style.display = 'flex';
+                messageDiv.style.alignItems = 'center';
+                messageDiv.style.justifyContent = 'flex-start';
+                messageDiv.style.marginBottom = '10px';
+
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(messageContent);
+            }
+
+            chatbotMessages.appendChild(messageDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        // Afficher ou masquer le chatbot
+        chatbotIcon.addEventListener('click', function () {
+            chatbotContainer.classList.toggle('hidden');
+        });
+
+        chatbotClose.addEventListener('click', function () {
+            chatbotContainer.classList.add('hidden');
+        });
+
+        // Gestion des messages
+        chatbotForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const userMessage = chatbotInput.value.trim();
+            if (!userMessage) return;
+
+            // Ajouter le message utilisateur
+            addMessage(userMessage, 'Human');
+            chatbotInput.value = '';
+
+            try {
+                // Récupérer le token CSRF
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                // Envoyer la requête AJAX
+                const response = await fetch('/chatbot/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: new URLSearchParams({ message: userMessage }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP : ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Ajouter la réponse du chatbot
+                addMessage(data.response, 'AI');
+            } catch (error) {
+                console.error('Erreur :', error);
+                addMessage('Une erreur est survenue. Veuillez réessayer.', 'AI');
+            }
+        });
+    });
+</script>
+
+
+{% endblock %}

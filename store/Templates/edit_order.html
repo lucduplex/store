@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifier la Commande{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Modifier la Commande #{{ order.id }}</h1>
+    <p> <strong>Sous-total actuel: </strong>{{ total_price|floatformat:2 }} $</p>
+
+    <form method="POST" action="{% url 'edit_order' order.id %}">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Image</th>
+                    <th scope="col">Nom du produit</th>
+                    <th scope="col">Quantité</th>
+                    <th scope="col">Prix Unitaire</th>
+                    <th scope="col">Sous-total</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if form_item_pairs %}
+                    {% for form, item in form_item_pairs %}
+                        <tr>
+                            <td>{{ item.product.id }}</td>
+                            <td>
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="80" height="80" class="rounded" style="object-fit: cover;">
+                            </td>
+                            <td>{{ item.product.name }}</td>
+                            <td>
+                                <input type="number" name="form-{{ forloop.counter0 }}-quantity" value="{{ form.quantity.value }}" min="1" class="form-control form-control-sm" style="width: 80px;">
+                                <input type="hidden" name="form-{{ forloop.counter0 }}-id" value="{{ form.id.value }}">
+                            </td>
+                            <td>{{ item.product.price }} $</td>
+                            <td>{{ item.subtotal|floatformat:2 }} $</td>
+                            <td>
+                                <a href="{% url 'delete_order_item' item.product.id %}" class="btn btn-danger btn-sm">Supprimer</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="5"><strong>Total :</strong></td>
+                        <td colspan="2"><strong>{{ total_price|floatformat:2 }} $</strong></td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        
+        <button type="submit" class="btn btn-primary">Mettre à jour la commande</button>
+        <a href="{% url 'user_orders' %}" class="btn btn-secondary">Retour à mes commandes</a>
+    </form>
+</div>
+{% endblock %}

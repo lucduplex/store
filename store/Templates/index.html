@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Section de bienvenue -->
+    <section class="welcome-section text-center py-5 bg-light position-relative">
+        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-25"></div>
+        <div class="container position-relative">
+            <h1 class="display-4 fw-bold" style="animation: fadeInUp 1s;">Bienvenue chez Apple Store</h1>
+            <p class="lead" style="max-width: 800px; margin: 0 auto; animation: fadeInUp 1.2s;">Découvrez l'excellence de la technologie Apple. Explorez nos catégories de produits phares et trouvez celui qui vous convient le mieux.</p>
+        </div>
+    </section>
+    
+    
+
+    <!-- Section produits iPad et Mac -->
+    <div class="row mb-4 m-2 mt-4">
+        <!-- Section iPad -->
+        <div class="col-md-6">
+            <section class="products-section text-center py-5 bg-light" style="color: white; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s;">
+                <div class="container">
+                    <h2 class="display-3 fw-bold" style="letter-spacing: 2px;">IPad</h2>
+                    <p class="lead" style="animation: fadeInUp 1.6s;">L'iPad vous offre une puissance et une mobilité exceptionnelles. Explorez des modèles polyvalents et adaptés à tous vos besoins.</p>
+                    <a href="{% url 'products_by_category' 3 %}" class="btn btn-dark btn-lg shadow-lg" style="animation: fadeInUp 1.8s;">Voir les produits</a>
+                </div>
+            </section>
+        </div>
+
+        <!-- Section Mac -->
+        <div class="col-md-6">
+            <section class="products-section1 text-center py-5 bg-light" style="color: white; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s;">
+                <div class="container">
+                    <h2 class="display-3 fw-bold" style="letter-spacing: 2px;">Mac</h2>
+                    <p class="lead" style="animation: fadeInUp 1.6s;">Le Mac, synonyme de performance et de design. Découvrez une gamme d'ordinateurs parfaits pour tous vos projets créatifs et professionnels.</p>
+                    <a href="{% url 'products_by_category' 2 %}" class="btn btn-dark btn-lg shadow-lg" style="animation: fadeInUp 1.8s;">Voir les produits</a>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Section iPhone avec image de fond -->
+    <section class="main-section text-center mb-4" style="color: white; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);">
+        <div class="container">
+            <div class="category-content" style="animation: fadeInUp 1.6s;">
+                <h2 class="display-3 fw-bold" style="letter-spacing: 2px;">IPhone</h2>
+                <p class="lead" style="font-size: 1.5rem; max-width: 700px; margin: 0 auto;">Découvrez notre gamme iPhone, conçue pour allier puissance, performance et innovation. Explorez les derniers modèles d'iPhone et plongez dans l'univers Apple.</p>
+                <div class="buttons mt-4">
+                    <a href="{% url 'products_by_category' 1 %}" class="btn btn-dark btn-lg shadow-lg" style="padding: 15px 30px; transition: background-color 0.3s;">Voir les produits</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Publicitaire avec Vidéo -->
+    <section class="advert-section position-relative text-white text-center" style="overflow: hidden; margin-top: 40px; height: 500px;">
+        <div class="video-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 1;"></div>
+        
+        <!-- Vidéo en plein écran -->
+        <video autoplay muted loop playsinline style="width: 100%; height: 100%; object-fit: cover; z-index: 0;">
+            <source src="{% static 'videos/pub.mp4' %}" type="video/mp4">
+        </video>
+
+        <!-- Contenu de la section en superposition -->
+        <div class="container position-relative" style="z-index: 2; padding-top: 150px;">
+            <h2 class="display-4 fw-bold mb-3" style="animation: fadeInUp 1.2s;">Publicité IPhone</h2>
+            <p class="lead mb-4" style="animation: fadeInUp 1.4s;">Découvrez la dernière publicité de l'iPhone : puissance, design et technologie de pointe réunis.</p>
+            <a href="#" class="btn btn-light btn-lg shadow" style="animation: fadeInUp 1.6s;">En savoir plus</a>
+        </div>
+    </section>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Votre panier{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Votre Panier</h1>
+
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Image</th>
+                <th scope="col">Nom du produit</th>
+                <th scope="col">Quantité</th>
+                <th scope="col">Prix Unitaire</th>
+                <th scope="col">Prix Total</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if cart_items %}
+                {% for item in cart_items %}
+                    <tr>
+                        <td>{{ item.product.id }}</td>
+                        <td>
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="80" height="80" style="object-fit: cover;" class="rounded">
+                        </td>
+                        <td>{{ item.product.name }}</td>
+                        <td>
+                            <form method="POST" action="{% url 'update_cart_quantity' item.product.id %}">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm" style="width: 80px;" onchange="this.form.submit()">
+                            </form>
+                        </td>
+                        <td>{{ item.product.price }} $</td>
+                        <td>{{ item.total_item_price|floatformat:2 }} $</td> <!-- Utilisation de la nouvelle variable -->
+                        <td>
+                            <a href="{% url 'delete_product_of_cart' item.product.id %}" class="btn btn-danger btn-sm">Supprimer</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="5"><strong>Sous-Total :</strong></td>
+                    <td colspan="2"><strong>{{ total_price|floatformat:2 }} $</strong></td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">
+                        <h1>Votre Panier est vide !</h1>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    {% if cart_items %}
+    <div class="d-flex justify-content-center mt-3">
+        <a href="{% url 'order' %}" class="btn btn-success btn-lg">Passer à la caisse</a>
+    </div>
+    
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}À propos{% endblock %}
+
+{% block content %}
+<section class="about-section py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body text-center">
+                        <!-- Titre -->
+                        <h2 class="card-title mb-4">À propos de nous</h2>
+                        
+                        <!-- Informations personnelles avec des icônes -->
+                        <p><i class="bi bi-person-fill me-2"></i>Nom: <strong>KAMGUE Luc Duplex</strong></p>
+                        <p><i class="bi bi-envelope-fill me-2"></i>Email: <strong>lucduplex@outlook.com</strong></p>
+                        <p><i class="bi bi-telephone-fill me-2"></i>Téléphone: <strong>514-946-7048</strong></p>
+                        
+                        <!-- Séparateur -->
+                        <hr class="my-4">
+                        
+                        <!-- Informations supplémentaires -->
+                        <p class="lead">Luc Duplex est un développeur passionné, spécialisé dans le développement web et l'ingénierie logicielle. Avec un fort engagement pour la création de solutions efficaces et évolutives, il se consacre à l'amélioration de l'expérience utilisateur.</p>
+
+                        <!-- Bouton de contact -->
+                        <a href="mailto:lucduplex@outlook.com" class="btn btn-outline-primary mt-3">
+                            <i class="bi bi-envelope"></i> Contactez-moi
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

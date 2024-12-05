@@ -42,8 +42,8 @@ def chatbot_view(request):
     chat_history = request.session.get('chat_history', [])
     avatar_user = request.session.get('avatar_user', None)
     avatar_assistant = request.session.get('avatar_assistant', None)
-    
-     # Ajouter un message de bienvenue si l'historique est vide
+
+    # Ajouter un message de bienvenue si l'historique est vide
     if not chat_history:
         welcome_message = {
             'role': 'AI',
@@ -52,18 +52,18 @@ def chatbot_view(request):
         chat_history.append(welcome_message)
         request.session['chat_history'] = chat_history
 
-    # Récupérer l'avatar utilisateur s'il n'est pas déjà dans la session
+    # Récupérer l'avatar utilisateur
     if not avatar_user:
         user_profile = get_object_or_404(UserProfile, user=request.user)
         avatar_user = user_profile.face_id.url if user_profile.face_id else '/static/images/default-avatar.jpg'
         request.session['avatar_user'] = avatar_user
 
-    # Récupérer l'avatar de l'assistant s'il n'est pas déjà dans la session
+    # Récupérer l'avatar de l'assistant
     if not avatar_assistant:
-        avatar_assistant = '/static/images/assistant.jpg' 
+        avatar_assistant = '/static/images/assistant.jpg'
         request.session['avatar_assistant'] = avatar_assistant
 
-    # Récupérer les données liées à l'utilisateur
+    # Récupérer les données de l'utilisateur
     orders = Order.objects.filter(user=request.user)
     order_items = OrderItem.objects.filter(order__user=request.user)
     cart = Cart.objects.filter(user=request.user).first()
@@ -71,19 +71,29 @@ def chatbot_view(request):
     categories = Category.objects.all()
     list_products = Product.objects.all()
 
-    # Si la requête est AJAX (pour un message utilisateur)
+    # Si la requête est AJAX
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         message = request.POST.get('message', '')
         if message:
             chat_history.append({'role': 'Human', 'content': message})
+
+            # Préparer les informations personnelles pour le prompt
+            personal_info = {
+                "orders": orders,
+                "order_items": order_items,
+                "cart": cart,
+                "cart_items": cart_items,
+                "categories": categories,
+                "list_products": list_products,
+            }
+
             try:
-                ai_response = retrieve_response(message, chat_history, {})
+                ai_response = retrieve_response(message, chat_history, personal_info)
                 chat_history.append({'role': 'AI', 'content': ai_response})
             except Exception as e:
                 ai_response = "Erreur de connexion avec l'API. Merci de réessayer plus tard."
                 chat_history.append({'role': 'AI', 'content': ai_response})
 
-            # Mettre à jour l'historique et les avatars dans la session
             request.session['chat_history'] = chat_history
             return JsonResponse({
                 'response': ai_response,
@@ -110,27 +120,50 @@ def chatbot_view(request):
 
 
 def retrieve_response(user_input, chat_history, personal_info):
-    # Gabarit pour structurer la réponse
+    # Structure des données personnelles
+    structured_info = {
+        "orders": [
+            {"id": order.id, "status": order.status, "date": order.created_at}
+            for order in personal_info.get('orders', [])
+        ],
+        "order_items": [
+            {"order_id": item.order.id, "product": item.product.name, "quantity": item.quantity}
+            for item in personal_info.get('order_items', [])
+        ],
+        "cart": {
+            "id": personal_info.get('cart').id if personal_info.get('cart') else None,
+            "items": [
+                {"product": item.product.name, "quantity": item.quantity}
+                for item in personal_info.get('cart_items', [])
+            ]
+        },
+        "cart_items": [
+            {"product": item.product.name, "quantity": item.quantity}
+            for item in personal_info.get('cart_items', [])
+        ],
+        "categories": [category.name for category in personal_info.get('categories', [])],
+        "products": [product.name for product in personal_info.get('list_products', [])],
+    }
+
+    # Gabarit pour le prompt
     template = """
     You are a helpful assistant. Structure your answers to be clear, organized, and easy to read.
-    Use bullet points, proper formatting, and avoid unnecessary symbols like '**'. 
+    Use bullet points, proper formatting, and avoid unnecessary symbols like '**'.
     Personal information: {personal_info}
     Chat history: {chat_history}
     User question: {user_question}
     """
     prompt = ChatPromptTemplate.from_template(template)
-    llm = ChatOpenAI(model="gpt-4o", max_tokens=150, temperature=0.7)
+    llm = ChatOpenAI(model="gpt-4", max_tokens=150, temperature=0.7)
     sequence = prompt | llm | StrOutputParser()
 
     response = sequence.invoke({
-        "personal_info": personal_info,
+        "personal_info": structured_info,
         "chat_history": chat_history,
         "user_question": user_input,
     })
 
-    # Nettoyage et structuration de la réponse
-    formatted_response = format_response(response)
-    return formatted_response
+    return format_response(response)
 
 
 def format_response(response):
@@ -144,7 +177,6 @@ def format_response(response):
     lines = response.split("-")
     structured_lines = [line.strip() for line in lines if line.strip()]
     return "\n".join(structured_lines)
-
 
 
 def user_login(request):
